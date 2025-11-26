@@ -1,0 +1,15 @@
+# 🚀 Comandos para Generar APK
+
+## Ejecuta estos comandos en tu terminal:
+
+1. Iniciar sesión en Expo:
+   eas login
+
+2. Generar el APK:
+   npm run build:android
+
+## ⏳ Tiempo estimado: 10-20 minutos
+
+## 📥 Descarga:
+   Cuando termine, recibirás un link para descargar el APK
+

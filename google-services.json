@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "964762330302",
+    "project_id": "polleria-e775d",
+    "storage_bucket": "polleria-e775d.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:964762330302:android:a11a4deccfaf05aaab6aef",
+        "android_client_info": {
+          "package_name": "com.polleria.gestionpedidos"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD2VyD0jq8JskpGM6-8y-95YTVuAy4JdI4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
