@@ -50,3 +50,4 @@ gestion-pedidos-movil/
 - React Navigation
 - AsyncStorage
 
+# gestion_pedidos
