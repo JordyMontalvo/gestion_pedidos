@@ -15,7 +15,7 @@ Si no tienes cuenta, créala en: https://expo.dev/signup
 ### Paso 2: Generar el APK
 
 ```bash
-npm run build:android
+
 ```
 
 O directamente:

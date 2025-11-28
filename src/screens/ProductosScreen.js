@@ -7,7 +7,7 @@ import {
   StyleSheet,
   TextInput,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { usePedidos } from '../context/PedidosContext';
 import ProductoCard from '../components/ProductoCard';
@@ -24,6 +24,7 @@ const ProductosScreen = () => {
   const { productos, agregarAlCarrito, carrito } = usePedidos();
   const [categoriaSeleccionada, setCategoriaSeleccionada] = useState('todos');
   const [busqueda, setBusqueda] = useState('');
+  const insets = useSafeAreaInsets();
 
   const productosFiltrados = productos.filter(producto => {
     const coincideCategoria = categoriaSeleccionada === 'todos' || producto.categoria === categoriaSeleccionada;
@@ -119,7 +120,10 @@ const ProductosScreen = () => {
           renderItem={renderProducto}
           keyExtractor={(item) => item.id.toString()}
           numColumns={2}
-          contentContainerStyle={styles.productosList}
+          contentContainerStyle={[
+            styles.productosList,
+            { paddingBottom: 80 + Math.max(insets.bottom, 0) }
+          ]}
           columnWrapperStyle={styles.productosRow}
           showsVerticalScrollIndicator={false}
         />

@@ -1,12 +1,16 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, Platform, TouchableOpacity, Alert } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { usePedidos } from '../context/PedidosContext';
+import { useAuth, ROLES, NOMBRES_ROLES } from '../context/AuthContext';
 import ProductosScreen from '../screens/ProductosScreen';
 import CarritoScreen from '../screens/CarritoScreen';
 import PedidosScreen from '../screens/PedidosScreen';
-import AdminScreen from '../screens/AdminScreen';
+import CocinaScreen from '../screens/CocinaScreen';
+import CajaScreen from '../screens/CajaScreen';
+import PedidosBadge from '../components/PedidosBadge';
 
 const Tab = createBottomTabNavigator();
 
@@ -27,6 +31,57 @@ const CarritoIconWithBadge = ({ color, size }) => {
 };
 
 const MainNavigator = () => {
+  const insets = useSafeAreaInsets();
+  const { rol, cerrarSesion } = useAuth();
+  const { pedidos } = usePedidos();
+  
+  // Contar pedidos pendientes para badge
+  const pedidosPendientes = pedidos.filter(p => 
+    p.estado === 'pendiente' || p.estado === 'en_preparacion'
+  ).length;
+
+  const handleCerrarSesion = () => {
+    console.log('🔴 Botón de cerrar sesión presionado');
+    Alert.alert(
+      'Cerrar Sesión',
+      '¿Estás seguro de que quieres cerrar sesión?',
+      [
+        { 
+          text: 'Cancelar', 
+          style: 'cancel',
+        },
+        {
+          text: 'Cerrar Sesión',
+          style: 'destructive',
+          onPress: async () => {
+            console.log('✅ Usuario confirmó cerrar sesión');
+            try {
+              await cerrarSesion();
+              console.log('✅ Sesión cerrada, estado actualizado');
+              // El cambio de rol hará que App.js muestre LoginScreen automáticamente
+            } catch (error) {
+              console.error('❌ Error al cerrar sesión:', error);
+              Alert.alert('Error', 'No se pudo cerrar sesión. Intenta nuevamente.');
+            }
+          },
+        },
+      ],
+      { cancelable: true }
+    );
+  };
+
+  // Función para headerRight que React Navigation espera
+  const headerRightComponent = () => (
+    <TouchableOpacity
+      onPress={handleCerrarSesion}
+      style={styles.logoutButton}
+      activeOpacity={0.7}
+      hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+    >
+      <Ionicons name="log-out-outline" size={24} color="#fff" />
+    </TouchableOpacity>
+  );
+
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
@@ -36,9 +91,11 @@ const MainNavigator = () => {
           } else if (route.name === 'Carrito') {
             return <CarritoIconWithBadge color={color} size={size} />;
           } else if (route.name === 'Pedidos') {
-            return <Ionicons name={focused ? 'receipt' : 'receipt-outline'} size={size} color={color} />;
-          } else if (route.name === 'Admin') {
-            return <Ionicons name={focused ? 'settings' : 'settings-outline'} size={size} color={color} />;
+            return <PedidosBadge cantidad={pedidosPendientes} color={color} size={size} />;
+          } else if (route.name === 'Cocina') {
+            return <Ionicons name={focused ? 'fast-food' : 'fast-food-outline'} size={size} color={color} />;
+          } else if (route.name === 'Caja') {
+            return <Ionicons name={focused ? 'cash' : 'cash-outline'} size={size} color={color} />;
           }
         },
         tabBarActiveTintColor: '#FF6B00',
@@ -47,8 +104,8 @@ const MainNavigator = () => {
           backgroundColor: '#fff',
           borderTopWidth: 1,
           borderTopColor: '#e8e8e8',
-          height: 60,
-          paddingBottom: 8,
+          height: 60 + Math.max(insets.bottom, 8),
+          paddingBottom: Math.max(insets.bottom, 8),
           paddingTop: 8,
           shadowColor: '#000',
           shadowOffset: { width: 0, height: -2 },
@@ -59,12 +116,17 @@ const MainNavigator = () => {
         tabBarLabelStyle: {
           fontSize: 12,
           fontWeight: '600',
+          marginBottom: Platform.OS === 'android' ? 0 : 4,
+        },
+        tabBarItemStyle: {
+          paddingVertical: 4,
         },
         headerStyle: {
           backgroundColor: '#FF6B00',
           elevation: 0,
           shadowOpacity: 0,
         },
+        headerStatusBarHeight: insets.top,
         headerTintColor: '#fff',
         headerTitleStyle: {
           fontWeight: 'bold',
@@ -73,26 +135,92 @@ const MainNavigator = () => {
         headerShadowVisible: false,
       })}
     >
-      <Tab.Screen 
-        name="Productos" 
-        component={ProductosScreen}
-        options={{ title: 'Menú' }}
-      />
-      <Tab.Screen 
-        name="Carrito" 
-        component={CarritoScreen}
-        options={{ title: 'Carrito' }}
-      />
-      <Tab.Screen 
-        name="Pedidos" 
-        component={PedidosScreen}
-        options={{ title: 'Pedidos' }}
-      />
-      <Tab.Screen 
-        name="Admin" 
-        component={AdminScreen}
-        options={{ title: 'Admin' }}
-      />
+      {rol === ROLES.COCINA ? (
+        <>
+          <Tab.Screen 
+            name="Cocina" 
+            component={CocinaScreen}
+            options={{ 
+              title: '👨‍🍳 Cocina',
+              headerRight: headerRightComponent,
+            }}
+          />
+        </>
+      ) : rol === ROLES.CAJA ? (
+        <>
+          <Tab.Screen 
+            name="Caja" 
+            component={CajaScreen}
+            options={{ 
+              title: '💰 Caja',
+              headerRight: headerRightComponent,
+            }}
+          />
+          <Tab.Screen 
+            name="Pedidos" 
+            component={PedidosScreen}
+            options={{ 
+              title: 'Todos los Pedidos',
+              headerRight: headerRightComponent,
+            }}
+          />
+        </>
+      ) : rol === ROLES.MESERO ? (
+        <>
+          <Tab.Screen 
+            name="Productos" 
+            component={ProductosScreen}
+            options={{ 
+              title: 'Menú',
+              headerRight: headerRightComponent,
+            }}
+          />
+          <Tab.Screen 
+            name="Carrito" 
+            component={CarritoScreen}
+            options={{ 
+              title: 'Carrito',
+              headerRight: headerRightComponent,
+            }}
+          />
+          <Tab.Screen 
+            name="Pedidos" 
+            component={PedidosScreen}
+            options={{ 
+              title: 'Mis Pedidos',
+              headerRight: headerRightComponent,
+            }}
+          />
+        </>
+      ) : (
+        // Admin o por defecto - todas las pantallas
+        <>
+          <Tab.Screen 
+            name="Productos" 
+            component={ProductosScreen}
+            options={{ 
+              title: 'Menú',
+              headerRight: headerRightComponent,
+            }}
+          />
+          <Tab.Screen 
+            name="Carrito" 
+            component={CarritoScreen}
+            options={{ 
+              title: 'Carrito',
+              headerRight: headerRightComponent,
+            }}
+          />
+          <Tab.Screen 
+            name="Pedidos" 
+            component={PedidosScreen}
+            options={{ 
+              title: 'Pedidos',
+              headerRight: headerRightComponent,
+            }}
+          />
+        </>
+      )}
     </Tab.Navigator>
   );
 };
@@ -120,7 +248,16 @@ const styles = StyleSheet.create({
     fontSize: 10,
     fontWeight: 'bold',
   },
+  logoutButton: {
+    marginRight: 15,
+    padding: 8,
+    borderRadius: 8,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    minWidth: 40,
+    minHeight: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
 });
 
 export default MainNavigator;
-

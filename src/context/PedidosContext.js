@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
 // Cambiar a Firestore para base de datos compartida
 import {
   obtenerProductos,
@@ -10,6 +10,11 @@ import {
   suscribirProductos,
   suscribirPedidos,
 } from '../services/firestoreService';
+import { 
+  solicitarPermisos, 
+  enviarNotificacionLocal,
+  configurarListenerNotificaciones 
+} from '../services/notificationService';
 
 const PedidosContext = createContext();
 
@@ -26,10 +31,13 @@ export const PedidosProvider = ({ children }) => {
   const [pedidos, setPedidos] = useState([]);
   const [productos, setProductos] = useState([]);
   const [dbInicializada, setDbInicializada] = useState(false);
+  const pedidosAnterioresRef = useRef([]);
+  const notificacionesInicializadas = useRef(false);
 
   // Inicializar Firestore y suscribirse a cambios en tiempo real
   useEffect(() => {
     inicializarDatos();
+    inicializarNotificaciones();
     
     // Suscribirse a cambios en tiempo real
     const unsubscribeProductos = suscribirProductos((productosDB) => {
@@ -37,6 +45,31 @@ export const PedidosProvider = ({ children }) => {
     });
     
     const unsubscribePedidos = suscribirPedidos((pedidosDB) => {
+      // Detectar nuevos pedidos
+      if (pedidosAnterioresRef.current.length > 0 && pedidosDB.length > pedidosAnterioresRef.current.length) {
+        const nuevosPedidos = pedidosDB.filter(p => 
+          !pedidosAnterioresRef.current.some(pa => pa.id === p.id)
+        );
+        
+        nuevosPedidos.forEach(pedido => {
+          const pedidoId = pedido?.id?.toString() || 'Nuevo';
+          const pedidoIdShort = typeof pedidoId === 'string' && pedidoId.length > 8 
+            ? pedidoId.substring(0, 8) 
+            : pedidoId;
+          const total = pedido?.total || 0;
+          
+          // Notificación con sonido para cocina
+          enviarNotificacionLocal(
+            '🍗 Nuevo Pedido',
+            `Pedido #${pedidoIdShort} - S/ ${typeof total === 'number' ? total.toFixed(2) : '0.00'}`,
+            { pedidoId: String(pedidoId), tipo: 'nuevo_pedido' }
+          ).catch(error => {
+            console.error('Error al enviar notificación de nuevo pedido:', error);
+          });
+        });
+      }
+      
+      pedidosAnterioresRef.current = pedidosDB;
       setPedidos(pedidosDB);
     });
     
@@ -46,6 +79,20 @@ export const PedidosProvider = ({ children }) => {
       unsubscribePedidos();
     };
   }, []);
+
+  const inicializarNotificaciones = async () => {
+    if (notificacionesInicializadas.current) return;
+    
+    try {
+      const tienePermisos = await solicitarPermisos();
+      if (tienePermisos) {
+        notificacionesInicializadas.current = true;
+        console.log('✅ Notificaciones configuradas');
+      }
+    } catch (error) {
+      console.error('Error al inicializar notificaciones:', error);
+    }
+  };
 
   const inicializarDatos = async () => {
     try {
@@ -131,7 +178,7 @@ export const PedidosProvider = ({ children }) => {
     return carrito.reduce((total, item) => total + (item.precio * item.cantidad), 0);
   };
 
-  const crearPedido = async (clienteNombre = '', observaciones = '') => {
+  const crearPedido = async (clienteNombre = '', observaciones = '', mesa = '') => {
     try {
       const nuevoPedido = {
         fecha: new Date().toISOString(),
@@ -139,11 +186,28 @@ export const PedidosProvider = ({ children }) => {
         total: calcularTotal(),
         clienteNombre,
         observaciones,
+        mesa: mesa || null,
         estado: 'pendiente'
       };
 
       // Guardar en la base de datos
       const pedidoCreado = await crearPedidoDB(nuevoPedido);
+      
+      // Enviar notificación local con sonido
+      try {
+        const pedidoId = pedidoCreado?.id || pedidoCreado?.id?.toString() || 'Nuevo';
+        const pedidoIdShort = typeof pedidoId === 'string' && pedidoId.length > 8 
+          ? pedidoId.substring(0, 8) 
+          : pedidoId;
+        
+        await enviarNotificacionLocal(
+          '✅ Pedido Creado',
+          `Pedido #${pedidoIdShort} creado exitosamente`,
+          { pedidoId: pedidoId.toString(), tipo: 'pedido_creado' }
+        );
+      } catch (notifError) {
+        console.error('Error al enviar notificación (no crítico):', notifError);
+      }
       
       // Recargar pedidos desde la base de datos
       await recargarPedidos();
@@ -161,6 +225,30 @@ export const PedidosProvider = ({ children }) => {
   const actualizarEstadoPedido = async (pedidoId, nuevoEstado) => {
     try {
       await actualizarEstadoPedidoDB(pedidoId, nuevoEstado);
+      
+      // Enviar notificación cuando cambia el estado
+      const nombresEstado = {
+        pendiente: '⏳ Pendiente',
+        en_preparacion: '👨‍🍳 En Preparación',
+        listo: '✅ Listo',
+        entregado: '🎉 Entregado'
+      };
+      
+      try {
+        const pedidoIdStr = pedidoId?.toString() || 'N/A';
+        const pedidoIdShort = typeof pedidoIdStr === 'string' && pedidoIdStr.length > 8 
+          ? pedidoIdStr.substring(0, 8) 
+          : pedidoIdStr;
+        
+        await enviarNotificacionLocal(
+          '📦 Estado Actualizado',
+          `Pedido #${pedidoIdShort}: ${nombresEstado[nuevoEstado] || nuevoEstado}`,
+          { pedidoId: pedidoIdStr, nuevoEstado, tipo: 'estado_actualizado' }
+        );
+      } catch (notifError) {
+        console.error('Error al enviar notificación (no crítico):', notifError);
+      }
+      
       await recargarPedidos();
     } catch (error) {
       console.error('Error al actualizar estado del pedido:', error);

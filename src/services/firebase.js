@@ -1,7 +1,5 @@
 import { initializeApp } from 'firebase/app';
-import { getFirestore, initializeFirestore } from 'firebase/firestore';
-import { initializeAuth, getReactNativePersistence } from 'firebase/auth';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { initializeFirestore } from 'firebase/firestore';
 
 // Configuración de Firebase
 // ✅ Credenciales extraídas de google-services.json
@@ -17,7 +15,6 @@ const firebaseConfig = {
 // Inicializar Firebase
 let app;
 let db;
-let auth;
 
 try {
   app = initializeApp(firebaseConfig);
@@ -25,14 +22,11 @@ try {
   db = initializeFirestore(app, {
     experimentalForceLongPolling: true, // Necesario para React Native
   });
-  // Configurar Auth con persistencia usando AsyncStorage
-  auth = initializeAuth(app, {
-    persistence: getReactNativePersistence(AsyncStorage),
-  });
+  console.log('✅ Firebase inicializado correctamente');
 } catch (error) {
-  console.error('Error al inicializar Firebase:', error);
+  console.error('❌ Error al inicializar Firebase:', error);
 }
 
-export { db, auth, app };
-export default { db, auth, app };
+export { db, app };
+export default { db, app };
 

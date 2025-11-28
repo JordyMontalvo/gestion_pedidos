@@ -9,7 +9,7 @@ import {
   ScrollView,
   Alert,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { usePedidos } from '../context/PedidosContext';
 
@@ -29,6 +29,7 @@ const iconosEstado = {
 
 const PedidosScreen = () => {
   const { pedidos, actualizarEstadoPedido, eliminarPedido } = usePedidos();
+  const insets = useSafeAreaInsets();
   const [filtroEstado, setFiltroEstado] = useState('todos');
   const [pedidoSeleccionado, setPedidoSeleccionado] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
@@ -161,6 +162,12 @@ const PedidosScreen = () => {
                 <Text style={styles.clienteNombre}>{item.clienteNombre}</Text>
               </View>
             )}
+            {item.mesa && (
+              <View style={styles.clienteContainer}>
+                <Ionicons name="restaurant" size={14} color="#FF6B00" />
+                <Text style={styles.clienteNombre}>{item.mesa}</Text>
+              </View>
+            )}
           </View>
           <View
             style={[
@@ -253,7 +260,10 @@ const PedidosScreen = () => {
           data={pedidosFiltrados}
           renderItem={renderPedido}
           keyExtractor={(item) => item.id.toString()}
-          contentContainerStyle={styles.listContainer}
+          contentContainerStyle={[
+            styles.listContainer,
+            { paddingBottom: 80 + Math.max(insets.bottom, 0) }
+          ]}
           showsVerticalScrollIndicator={false}
         />
       )}

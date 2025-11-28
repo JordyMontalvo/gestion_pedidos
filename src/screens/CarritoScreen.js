@@ -8,8 +8,9 @@ import {
   TextInput,
   Modal,
   Alert,
+  ScrollView,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { usePedidos } from '../context/PedidosContext';
 import { useNavigation } from '@react-navigation/native';
@@ -24,9 +25,12 @@ const CarritoScreen = () => {
     limpiarCarrito,
   } = usePedidos();
   const navigation = useNavigation();
+  const insets = useSafeAreaInsets();
   const [modalVisible, setModalVisible] = useState(false);
   const [clienteNombre, setClienteNombre] = useState('');
   const [observaciones, setObservaciones] = useState('');
+  const [mesa, setMesa] = useState('');
+  const mesasDisponibles = ['Mesa 1', 'Mesa 2', 'Mesa 3', 'Mesa 4', 'Mesa 5', 'Mostrador', 'Para Llevar', 'Delivery'];
 
   const handleConfirmarPedido = () => {
     if (carrito.length === 0) {
@@ -39,10 +43,11 @@ const CarritoScreen = () => {
 
   const handleFinalizarPedido = async () => {
     try {
-      const pedido = await crearPedido(clienteNombre, observaciones);
+      const pedido = await crearPedido(clienteNombre, observaciones, mesa);
       setModalVisible(false);
       setClienteNombre('');
       setObservaciones('');
+      setMesa('');
       
       Alert.alert(
         'Pedido creado',
@@ -139,11 +144,14 @@ const CarritoScreen = () => {
             data={carrito}
             renderItem={renderItem}
             keyExtractor={(item) => item.id.toString()}
-            contentContainerStyle={styles.listContainer}
+            contentContainerStyle={[
+              styles.listContainer,
+              { paddingBottom: 140 + Math.max(insets.bottom, 0) }
+            ]}
             showsVerticalScrollIndicator={false}
           />
           
-          <View style={styles.footer}>
+          <View style={[styles.footer, { paddingBottom: Math.max(insets.bottom, 0) + 70 }]}>
             <View style={styles.totalContainer}>
               <Text style={styles.totalLabel}>Total a pagar:</Text>
               <Text style={styles.totalAmount}>S/ {calcularTotal().toFixed(2)}</Text>
@@ -178,6 +186,36 @@ const CarritoScreen = () => {
               onChangeText={setClienteNombre}
               placeholderTextColor="#999"
             />
+            
+            <View style={styles.mesaContainer}>
+              <Text style={styles.label}>Mesa/Local:</Text>
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.mesasScroll}>
+                {mesasDisponibles.map((mesaItem) => (
+                  <TouchableOpacity
+                    key={mesaItem}
+                    style={[
+                      styles.mesaButton,
+                      mesa === mesaItem && styles.mesaButtonSelected
+                    ]}
+                    onPress={() => setMesa(mesa === mesaItem ? '' : mesaItem)}
+                  >
+                    <Text style={[
+                      styles.mesaButtonText,
+                      mesa === mesaItem && styles.mesaButtonTextSelected
+                    ]}>
+                      {mesaItem}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </ScrollView>
+              <TextInput
+                style={[styles.input, { marginTop: 8 }]}
+                placeholder="O escribir mesa personalizada..."
+                value={mesa}
+                onChangeText={setMesa}
+                placeholderTextColor="#999"
+              />
+            </View>
             
             <TextInput
               style={[styles.input, styles.textArea]}
@@ -486,6 +524,40 @@ const styles = StyleSheet.create({
   },
   confirmModalButton: {
     backgroundColor: '#FF6B00',
+  },
+  mesaContainer: {
+    marginBottom: 15,
+  },
+  label: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#666',
+    marginBottom: 8,
+  },
+  mesasScroll: {
+    marginBottom: 8,
+  },
+  mesaButton: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
+    backgroundColor: '#f5f5f5',
+    borderWidth: 1,
+    borderColor: '#e0e0e0',
+    marginRight: 8,
+  },
+  mesaButtonSelected: {
+    backgroundColor: '#FF6B00',
+    borderColor: '#FF6B00',
+  },
+  mesaButtonText: {
+    fontSize: 14,
+    color: '#666',
+    fontWeight: '500',
+  },
+  mesaButtonTextSelected: {
+    color: '#fff',
+    fontWeight: 'bold',
   },
 });
 

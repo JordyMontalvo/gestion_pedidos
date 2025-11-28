@@ -9,7 +9,7 @@ import {
   Alert,
   Share,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { usePedidos } from '../context/PedidosContext';
 import {
@@ -19,6 +19,7 @@ import { testFirebaseConnection } from '../utils/testFirebase';
 
 const AdminScreen = () => {
   const { productos, pedidos, recargarPedidos } = usePedidos();
+  const insets = useSafeAreaInsets();
   const [estadisticas, setEstadisticas] = useState(null);
   const [tabActiva, setTabActiva] = useState('estadisticas'); // estadisticas, productos, pedidos, baseDatos
   const [cargando, setCargando] = useState(false);
@@ -83,7 +84,10 @@ const AdminScreen = () => {
   };
 
   const renderEstadisticas = () => (
-    <ScrollView style={styles.contenido}>
+    <ScrollView 
+      style={styles.contenido}
+      contentContainerStyle={{ paddingBottom: 80 + Math.max(insets.bottom, 0) }}
+    >
       <View style={styles.card}>
         <Text style={styles.cardTitle}>📊 Estadísticas Generales</Text>
         
@@ -161,7 +165,10 @@ const AdminScreen = () => {
             </View>
           </View>
         )}
-        contentContainerStyle={styles.listContainer}
+        contentContainerStyle={[
+          styles.listContainer,
+          { paddingBottom: 80 + Math.max(insets.bottom, 0) }
+        ]}
       />
     </View>
   );
@@ -191,13 +198,19 @@ const AdminScreen = () => {
             </View>
           </View>
         )}
-        contentContainerStyle={styles.listContainer}
+        contentContainerStyle={[
+          styles.listContainer,
+          { paddingBottom: 80 + Math.max(insets.bottom, 0) }
+        ]}
       />
     </View>
   );
 
   const renderBaseDatos = () => (
-    <ScrollView style={styles.contenido}>
+    <ScrollView 
+      style={styles.contenido}
+      contentContainerStyle={{ paddingBottom: 80 + Math.max(insets.bottom, 0) }}
+    >
       <View style={styles.card}>
         <Text style={styles.cardTitle}>🗄️ Información de Base de Datos</Text>
         

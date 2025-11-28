@@ -238,6 +238,7 @@ export const crearPedido = async (pedido) => {
       fecha: pedido.fecha || new Date().toISOString(),
       clienteNombre: pedido.clienteNombre || null,
       observaciones: pedido.observaciones || null,
+      mesa: pedido.mesa || null,
       estado: pedido.estado || 'pendiente',
       total: pedido.total,
       created_at: serverTimestamp(),
@@ -266,13 +267,20 @@ export const crearPedido = async (pedido) => {
 };
 
 // Actualizar el estado de un pedido
-export const actualizarEstadoPedido = async (id, nuevoEstado) => {
+export const actualizarEstadoPedido = async (id, nuevoEstado, metodoPago = null) => {
   try {
     const pedidoRef = doc(db, 'pedidos', id);
-    await updateDoc(pedidoRef, {
+    const updateData = {
       estado: nuevoEstado,
       updated_at: serverTimestamp(),
-    });
+    };
+    
+    // Si se proporciona método de pago, agregarlo
+    if (metodoPago) {
+      updateData.metodoPago = metodoPago;
+    }
+    
+    await updateDoc(pedidoRef, updateData);
     return true;
   } catch (error) {
     console.error('Error al actualizar estado del pedido:', error);
