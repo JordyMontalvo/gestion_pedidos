@@ -1,6 +1,7 @@
 import * as Notifications from 'expo-notifications';
 import * as Device from 'expo-device';
 import { Platform } from 'react-native';
+import Constants from 'expo-constants';
 
 // Configurar el comportamiento de las notificaciones
 Notifications.setNotificationHandler({
@@ -12,36 +13,44 @@ Notifications.setNotificationHandler({
   }),
 });
 
-// Solicitar permisos de notificación
+// Solicitar permisos de notificación (solo notificaciones locales)
 export const solicitarPermisos = async () => {
+  // En Expo Go, las notificaciones locales funcionan sin problemas
   if (!Device.isDevice) {
-    console.warn('Las notificaciones solo funcionan en dispositivos físicos');
+    // En simulador/emulador, las notificaciones locales pueden no funcionar
     return false;
   }
 
-  const { status: existingStatus } = await Notifications.getPermissionsAsync();
-  let finalStatus = existingStatus;
-  
-  if (existingStatus !== 'granted') {
-    const { status } = await Notifications.requestPermissionsAsync();
-    finalStatus = status;
-  }
-  
-  if (finalStatus !== 'granted') {
-    console.warn('Permisos de notificación denegados');
+  try {
+    const { status: existingStatus } = await Notifications.getPermissionsAsync();
+    let finalStatus = existingStatus;
+    
+    if (existingStatus !== 'granted') {
+      const { status } = await Notifications.requestPermissionsAsync();
+      finalStatus = status;
+    }
+    
+    if (finalStatus !== 'granted') {
+      // Permisos denegados - no crítico para notificaciones locales
+      return false;
+    }
+
+    if (Platform.OS === 'android') {
+      await Notifications.setNotificationChannelAsync('default', {
+        name: 'default',
+        importance: Notifications.AndroidImportance.MAX,
+        vibrationPattern: [0, 250, 250, 250],
+        lightColor: '#FF6B00',
+        sound: 'default',
+      });
+    }
+
+    return true;
+  } catch (error) {
+    // Si hay error, no es crítico para el funcionamiento de la app
+    console.warn('⚠️ Error al solicitar permisos de notificación (no crítico):', error.message);
     return false;
   }
-
-  if (Platform.OS === 'android') {
-    await Notifications.setNotificationChannelAsync('default', {
-      name: 'default',
-      importance: Notifications.AndroidImportance.MAX,
-      vibrationPattern: [0, 250, 250, 250],
-      lightColor: '#FF6B00',
-    });
-  }
-
-  return true;
 };
 
 // Obtener el token de notificación (SOLO para Development Build o Producción)
