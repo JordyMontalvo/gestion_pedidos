@@ -84,3 +84,4 @@ Reinicia la app y verifica:
 
 ¡Todos los errores están corregidos! 🎉
 
+

@@ -186,3 +186,4 @@ Ya está implementado en `PedidosContext.js`.
 
 ¡Verifica estos puntos y la conexión debería funcionar! 🎉
 
+

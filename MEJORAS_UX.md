@@ -153,3 +153,4 @@ Se han implementado mejoras significativas en la experiencia de usuario y el dis
 
 ¡La aplicación ahora tiene un diseño mucho más moderno, profesional y fácil de usar! 🎉
 
+

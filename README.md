@@ -51,3 +51,4 @@ gestion-pedidos-movil/
 - AsyncStorage
 
 # gestion_pedidos
+

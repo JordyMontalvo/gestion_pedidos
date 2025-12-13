@@ -236,3 +236,4 @@ Si tienes problemas:
 
 ¡Una vez configurado, todos los usuarios compartirán la misma base de datos en tiempo real! 🎉
 
+

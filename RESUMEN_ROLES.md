@@ -124,3 +124,4 @@ Toca el botón de "Cerrar Sesión" (arriba a la derecha) y selecciona otro rol.
 
 Ahora cada empleado ve solo lo que necesita para su trabajo.
 
+

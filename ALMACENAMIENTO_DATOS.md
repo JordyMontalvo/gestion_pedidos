@@ -109,3 +109,4 @@ Los datos están en el almacenamiento interno de la app, no son accesibles direc
 
 ✅ **Privacidad**: Todos los datos están en el dispositivo, no se envían a servidores externos.
 
+

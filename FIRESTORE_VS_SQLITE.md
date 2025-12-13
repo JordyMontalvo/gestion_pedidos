@@ -69,3 +69,4 @@ import { ... } from '../services/database';
 2. Agrega las credenciales en `src/services/firebase.js`
 3. ¡Listo! Todos compartirán la misma base de datos
 
+

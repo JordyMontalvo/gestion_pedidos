@@ -68,3 +68,4 @@ Cuando generes el APK:
 
 **Puedes ignorar el warning. Las notificaciones locales funcionan perfectamente.** ✅
 
+

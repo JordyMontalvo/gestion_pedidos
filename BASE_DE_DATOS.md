@@ -181,3 +181,4 @@ La base de datos se puede respaldar copiando el archivo `.db` desde el dispositi
 
 ¡La aplicación ahora tiene una base de datos robusta y escalable! 🎉
 
+

@@ -128,3 +128,4 @@ La forma más fácil es crear una **pantalla de administración** dentro de la a
 
 Si prefieres, puedo crear una pantalla de debug dentro de la app para ver los datos sin necesidad de ADB.
 
+

@@ -120,3 +120,4 @@ Antes de pedir ayuda, verifica:
 - El modo túnel es más lento pero más confiable
 - El modo LAN es más rápido pero requiere la misma red WiFi
 
+

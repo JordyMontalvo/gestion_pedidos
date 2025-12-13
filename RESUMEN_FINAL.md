@@ -197,3 +197,4 @@ import QRCodeGenerator from '../components/QRCodeGenerator';
 
 ¿Quieres que continúe con las integraciones o prefieres probar primero lo que ya está funcionando?
 
+

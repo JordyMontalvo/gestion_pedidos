@@ -35,3 +35,4 @@ Cuando toques el botón, deberías ver:
 
 **El botón está configurado correctamente. Si no funciona, podría ser un problema de visibilidad o de que el header no se está renderizando correctamente.**
 
+

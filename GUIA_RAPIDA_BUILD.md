@@ -50,3 +50,4 @@ El APK está listo para ser instalado en cualquier dispositivo Android 5.0 o sup
 
 Para más detalles, ver `BUILD_PRODUCCION.md`
 
+

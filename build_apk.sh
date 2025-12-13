@@ -53,3 +53,4 @@ echo "✅ Build iniciado!"
 echo "⏳ Esto puede tomar 10-20 minutos"
 echo "📱 Recibirás un link para descargar el APK cuando termine"
 
+

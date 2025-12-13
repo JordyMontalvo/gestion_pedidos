@@ -54,3 +54,4 @@ El código ahora usa `useSafeAreaInsets()` para:
 
 ¡Los tabs ahora están siempre accesibles! 🎉
 
+

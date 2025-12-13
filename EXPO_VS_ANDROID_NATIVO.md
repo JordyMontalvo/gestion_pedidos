@@ -70,3 +70,4 @@ No necesitas hacer nada más de código. Solo configura Firestore Database y las
 
 **En Expo, Firebase se conecta automáticamente cuando haces el build. No necesitas Gradle ni código nativo.** 🎉
 
+

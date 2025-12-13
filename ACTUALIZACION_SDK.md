@@ -43,3 +43,4 @@ El proyecto ha sido actualizado de SDK 49 a SDK 54 para ser compatible con la ve
 
 - Todas las funcionalidades de la aplicación permanecen iguales, solo se actualizaron las versiones de las dependencias.
 
+

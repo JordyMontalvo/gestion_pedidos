@@ -76,3 +76,4 @@ Los warnings aparecen porque:
 
 **¡El sistema está funcionando correctamente!** 🎉
 
+

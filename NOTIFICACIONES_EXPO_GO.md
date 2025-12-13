@@ -103,3 +103,4 @@ Las notificaciones funcionan mediante **sincronización en tiempo real con Fires
 
 **La advertencia que ves es informativa: las notificaciones locales SÍ funcionan en Expo Go.** ✅
 
+

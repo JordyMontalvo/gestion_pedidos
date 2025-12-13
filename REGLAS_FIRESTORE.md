@@ -95,3 +95,4 @@ Missing or insufficient permissions
 
 ¡Configura las reglas y la conexión funcionará! 🔓
 
+
